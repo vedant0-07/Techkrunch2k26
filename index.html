@@ -3,126 +3,332 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRAGYOTSAV | PRAGYOTSAV 2K26</title>
-    
+    <title>PRAGYOTSAV 2K26 | TechKrunch — Enter the Upside Down</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Orbitron:wght@400;700&family=Ubuntu:wght@300;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Ubuntu:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="loading">
 
-    <div class="particles"></div>
+    <!-- GLITCH INTRO OVERLAY (Idea 1) -->
+    <div id="glitch-overlay">
+        <canvas id="glitch-canvas"></canvas>
+        <div id="glitch-text">
+            <div class="gl-line" id="gl1">PRAGYOTSAV_2K26.exe</div>
+            <div class="gl-line" id="gl2">LOADING UPSIDE DOWN...</div>
+            <div class="gl-line" id="gl3">■■■■■■■■░░░░ 68%</div>
+        </div>
+    </div>
 
-    <nav class="fixed w-full z-50 bg-black/90 backdrop-blur-md border-b border-red-900/50 py-4">
-        <div class="container mx-auto flex justify-between items-center px-6">
-            <div class="text-2xl font-bold stranger-title">TECHKRUNCH</div>
-            <div class="hidden md:flex space-x-8 font-semibold tracking-widest text-xs uppercase">
-                <a href="#home" class="hover:text-red-500 transition">Home</a>
-                <a href="#about" class="hover:text-red-500 transition">About</a>
-                <a href="#events" class="hover:text-red-500 transition">Events</a>
-                <a href="#contact" class="hover:text-red-500 transition">Contact</a>
+    <!-- CHRISTMAS LIGHT PROGRESS BAR (Idea 9) -->
+    <div id="progress-lights">
+        <div id="light-wire"></div>
+        <div id="light-bulbs"></div>
+    </div>
+
+    <!-- SPORE + NOISE CANVASES -->
+    <canvas id="spore-canvas"></canvas>
+    <canvas id="noise-canvas"></canvas>
+
+    <!-- VINE OVERLAY -->
+    <svg id="vine-svg" xmlns="http://www.w3.org/2000/svg">
+        <path class="vine" d="M0,0 C50,120 10,260 70,380 C120,480 50,600 110,720 C160,820 90,900 170,1000 C210,1080 150,1160 220,1260"/>
+        <path class="vine vine-r" d="M0,0 C60,130 20,270 80,390 C130,490 60,610 120,730 C170,830 100,910 180,1010 C220,1090 160,1170 230,1270"/>
+    </svg>
+
+    <!-- CURSOR -->
+    <div id="cursor-trail"></div>
+    <div id="cursor-dot"></div>
+
+    <!-- SOUND TOGGLE (Idea 7) -->
+    <button id="sound-btn" aria-label="Toggle ambient sound">
+        <svg id="sound-on-icon" viewBox="0 0 24 24" fill="none">
+            <path d="M11 5L6 9H2v6h4l5 4V5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M15.5 8.5a5 5 0 0 1 0 7M19 6a9 9 0 0 1 0 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <svg id="sound-off-icon" viewBox="0 0 24 24" fill="none" style="display:none">
+            <path d="M11 5L6 9H2v6h4l5 4V5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M23 9l-6 6M17 9l6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+    </button>
+
+    <!-- MOBILE MENU BTN (Idea 8) -->
+    <button id="menu-btn" aria-label="Toggle menu">
+        <svg id="menu-icon" viewBox="0 0 40 40" fill="none">
+            <path class="petal p1" d="M10 14h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path class="petal p2" d="M10 20h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path class="petal p3" d="M10 26h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+    </button>
+
+    <!-- MOBILE NAV DRAWER -->
+    <div id="mobile-nav">
+        <div id="mobile-nav-static"></div>
+        <nav>
+            <a href="#home"    class="mob-link" onclick="closeMobileNav()">Home</a>
+            <a href="#about"   class="mob-link" onclick="closeMobileNav()">About</a>
+            <a href="#events"  class="mob-link" onclick="closeMobileNav()">Events</a>
+            <a href="#map"     class="mob-link" onclick="closeMobileNav()">Map</a>
+            <a href="#contact" class="mob-link" onclick="closeMobileNav()">Contact</a>
+        </nav>
+    </div>
+    <div id="mobile-nav-backdrop" onclick="closeMobileNav()"></div>
+
+    <!-- NAVBAR -->
+    <nav id="main-nav" class="fixed w-full z-40 py-3">
+        <div class="container mx-auto flex justify-between items-center px-8">
+            <div class="nav-logo">TECHKRUNCH</div>
+            <div class="hidden md:flex items-center space-x-10">
+                <a href="#home"    class="nav-link">Home</a>
+                <a href="#about"   class="nav-link">About</a>
+                <a href="#events"  class="nav-link">Events</a>
+                <a href="#map"     class="nav-link">Map</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </div>
+            <div class="lights-strip hidden md:flex items-center gap-[5px]">
+                <div class="bulb b-r"></div><div class="bulb b-y"></div><div class="bulb b-g"></div>
+                <div class="bulb b-b"></div><div class="bulb b-r"></div><div class="bulb b-y"></div><div class="bulb b-g"></div>
             </div>
         </div>
     </nav>
 
-  <section id="home" class="h-screen flex flex-col items-center justify-center text-center upside-down-bg px-4 overflow-hidden">
-    
-    <div class="red-mist"></div>
+    <!-- HERO (Idea 4 — Day→Night scroll scene) -->
+    <section id="home" class="hero-section">
+        <div id="layer-sky"   class="para-layer"></div>
+        <div id="layer-stars" class="para-layer"></div>
+        <div id="layer-mist"  class="para-layer"></div>
+        <canvas id="scene-canvas"></canvas>
+        <div class="atmos-fog"></div>
+        <div class="vignette"></div>
 
-    <div data-aos="zoom-in" data-aos-duration="1500" class="relative z-10 flex flex-col items-center">
-        <div class="mb-10">
-            <img src="logo.png" alt="PRAGYOTSAV" class="logo-glow w-48 md:w-80">
+        <div class="hero-content" id="hero-content">
+            <div class="logo-wrap" data-aos="zoom-in" data-aos-duration="2000">
+                <div class="logo-halo"></div>
+                <img src="logo.png" alt="PRAGYOTSAV 2K26" class="hero-logo" id="hero-logo">
+            </div>
+            <!-- Idea 5: Morse typewriter tagline -->
+            <p class="hero-tagline" id="hero-tagline"></p>
+            <div class="lights-row" data-aos="fade-up" data-aos-delay="900">
+                <div class="bulb b-r"></div><div class="bulb b-y"></div><div class="bulb b-g"></div>
+                <div class="bulb b-b"></div><div class="bulb b-p"></div><div class="bulb b-r"></div>
+                <div class="bulb b-y"></div><div class="bulb b-g"></div><div class="bulb b-b"></div>
+                <div class="bulb b-p"></div><div class="bulb b-r"></div><div class="bulb b-y"></div>
+                <div class="bulb b-g"></div><div class="bulb b-b"></div><div class="bulb b-p"></div>
+                <div class="bulb b-r"></div><div class="bulb b-y"></div>
+            </div>
+            <div class="scroll-cue" data-aos="fade-up" data-aos-delay="1200">
+                <span>scroll to enter</span>
+                <div class="scroll-line"><div class="scroll-dot"></div></div>
+            </div>
         </div>
+    </section>
 
-        <p class="text-lg md:text-xl italic text-red-600 font-light tracking-[0.3em] uppercase mb-8">
-            “Enter the Upside Down of Technology”
-        </p>
-
-        </div>
-</section>
-
-    <section id="about" class="py-24 px-6 container mx-auto text-center border-b border-red-900/10">
-    <h2 class="text-4xl font-bold mb-10 text-white uppercase tracking-widest" data-aos="fade-up">
-        About TechKrunch
-    </h2>
-    
-    <div class="max-w-4xl mx-auto space-y-6 text-gray-400 text-lg leading-relaxed" data-aos="fade-up">
-        <p>
-            <span class="text-red-600 font-bold">TechKrunch</span> is our premier technical festival designed to push the boundaries of innovation and creativity. It serves as a hub for technical knowledge, gaming excellence, and student participation, fostering a spirit of healthy competition.
-        </p>
-        <p>
-            This year, <span class="text-white border-b border-red-900">PRAGYOTSAV 2K26</span> is proudly organized under the banner of TechKrunch. Together, they create an immersive experience that bridges the gap between engineering fundamentals and futuristic technology.
-        </p>
-    </div>
-</section>
-
-    <section id="events" class="py-24 container mx-auto px-6">
-    <h2 class="text-4xl font-bold text-center text-white uppercase tracking-widest mb-20" data-aos="fade-up">
-        Events
-    </h2>
-    
-    <div class="grid md:grid-cols-3 gap-10">
-        <div class="event-card p-8 rounded-sm" data-aos="fade-up">
-            <h3 class="text-2xl font-bold mb-4 text-white uppercase italic">Robo Soccer</h3>
-            <p class="text-gray-500 text-sm mb-8">A robotics competition where teams control robots to score goals in a soccer-style arena.</p>
-            <a href="#" class="block text-center py-2 border border-red-600 text-red-600 hover:bg-red-600 hover:text-white transition uppercase font-bold text-xs tracking-widest">Register</a>
-        </div>
-
-        <div class="event-card p-8 rounded-sm" data-aos="fade-up" data-aos-delay="100">
-            <h3 class="text-2xl font-bold mb-4 text-white uppercase italic">BGMI Championship</h3>
-            <p class="text-gray-500 text-sm mb-8">Competitive Battlegrounds Mobile India tournament focused on teamwork and strategy.</p>
-            <a href="#" class="block text-center py-2 border border-red-600 text-red-600 hover:bg-red-600 hover:text-white transition uppercase font-bold text-xs tracking-widest">Register</a>
-        </div>
-
-        <div class="event-card p-8 rounded-sm" data-aos="fade-up" data-aos-delay="200">
-            <h3 class="text-2xl font-bold mb-4 text-white uppercase italic">Free Fire</h3>
-            <p class="text-gray-500 text-sm mb-8">Battle royale gaming tournament requiring quick decision-making and tactical gameplay.</p>
-            <a href="#" class="block text-center py-2 border border-red-600 text-red-600 hover:bg-red-600 hover:text-white transition uppercase font-bold text-xs tracking-widest">Register</a>
-        </div>
-
-        <div class="event-card p-8 rounded-sm" data-aos="fade-up">
-            <h3 class="text-2xl font-bold mb-4 text-white uppercase italic">Theme Based Quiz</h3>
-            <p class="text-gray-500 text-sm mb-8">Knowledge competition covering themed technical or general topics.</p>
-            <a href="#" class="block text-center py-2 border border-red-600 text-red-600 hover:bg-red-600 hover:text-white transition uppercase font-bold text-xs tracking-widest">Register</a>
-        </div>
-
-        <div class="event-card p-8 rounded-sm" data-aos="fade-up" data-aos-delay="100">
-            <h3 class="text-2xl font-bold mb-4 text-white uppercase italic">IPL Auction</h3>
-            <p class="text-gray-500 text-sm mb-8">Simulation of an IPL player auction requiring strategy and budgeting.</p>
-            <a href="#" class="block text-center py-2 border border-red-600 text-red-600 hover:bg-red-600 hover:text-white transition uppercase font-bold text-xs tracking-widest">Register</a>
-        </div>
-
-        <div class="event-card p-8 rounded-sm" data-aos="fade-up" data-aos-delay="200">
-            <h3 class="text-2xl font-bold mb-4 text-white uppercase italic">Project Competition</h3>
-            <p class="text-gray-500 text-sm mb-8">Students present innovative engineering projects and solutions.</p>
-            <a href="#" class="block text-center py-2 border border-red-600 text-red-600 hover:bg-red-600 hover:text-white transition uppercase font-bold text-xs tracking-widest">Register</a>
-        </div>
-    </div>
-</section>
-
-    <footer id="contact" class="py-20 border-t border-red-900/50 bg-black">
-        <div class="container mx-auto px-6 grid md:grid-cols-2 gap-10">
-            <div data-aos="fade-right">
-                <h2 class="stranger-title text-4xl mb-6 uppercase">Contact Us</h2>
-                <div class="space-y-4 text-gray-400">
-                    <p class="flex flex-col">
-                        <span class="text-white font-bold uppercase tracking-widest">Event Coordinator</span>
-                        <span>Swati Ma’am</span>
-                    </p>
-                    <p class="flex flex-col">
-                        <span class="text-white font-bold uppercase tracking-widest">Phone</span>
-                        <span class="text-red-500">00000 00000</span>
-                    </p>
-                    <p class="flex flex-col">
-                        <span class="text-white font-bold uppercase tracking-widest">Email</span>
-                        <span class="text-red-500">techkrunch26@gmail.com</span>
-                    </p>
+    <!-- ABOUT -->
+    <section id="about" class="about-section">
+        <div class="about-scanlines"></div>
+        <div class="container mx-auto px-8 py-28 relative z-10">
+            <div class="text-center">
+                <h2 class="section-title" data-aos="fade-up" data-flicker>About TechKrunch</h2>
+                <div class="title-rule mx-auto" data-aos="fade-up" data-aos-delay="100"></div>
+                <div class="about-grid mt-16" data-aos="fade-up" data-aos-delay="200">
+                    <div class="about-stat">
+                        <span class="stat-num">6+</span>
+                        <span class="stat-label">Events</span>
+                    </div>
+                    <div class="about-text-block">
+                        <p><span class="text-red">TechKrunch</span> is the premier technical festival of GHRCEM ENTC Department — a hub for innovation, gaming, and fierce intellectual competition. We push boundaries, break limits, and welcome the extraordinary.</p>
+                        <p>This year <span class="text-white-hl">PRAGYOTSAV 2K26</span> rises under the TechKrunch banner — an immersive experience bridging engineering fundamentals with the fearless future. The Upside Down awaits those bold enough to enter.</p>
+                    </div>
+                    <div class="about-stat">
+                        <span class="stat-num">2K26</span>
+                        <span class="stat-label">Edition</span>
+                    </div>
                 </div>
             </div>
-            <div data-aos="fade-left" class="flex flex-col justify-end items-end">
-                <p class="text-xs uppercase tracking-[0.5em] text-gray-600">GHRCEM - ENTC DEPARTMENT</p>
-                <p class="text-xs text-gray-800 mt-2 italic">Designed for the Upside Down</p>
+        </div>
+    </section>
+
+    <!-- HAWKINS MAP (Idea 3) -->
+    <section id="map" class="map-section">
+        <div class="map-scanlines"></div>
+        <div class="container mx-auto px-8 py-24 relative z-10">
+            <h2 class="section-title text-center" data-aos="fade-up" data-flicker>Hawkins Event Map</h2>
+            <div class="title-rule mx-auto" data-aos="fade-up" data-aos-delay="100"></div>
+            <p class="events-subtitle mt-3" data-aos="fade-up" data-aos-delay="200">Six locations. Six missions. Which will you survive?</p>
+            <div class="map-container" data-aos="fade-up" data-aos-delay="300">
+                <canvas id="map-canvas"></canvas>
+                <!-- Event pin tooltips -->
+                <div class="map-pin" id="pin-1" style="left:22%;top:38%">
+                    <div class="pin-dot"></div>
+                    <div class="pin-card">
+                        <div class="pc-num">01</div>
+                        <div class="pc-title">Robo Soccer</div>
+                        <div class="pc-desc">Hawkins High Gym — Teams battle with robots in a soccer arena</div>
+                        <a href="#" class="pc-btn">Register →</a>
+                    </div>
+                </div>
+                <div class="map-pin" id="pin-2" style="left:55%;top:22%">
+                    <div class="pin-dot"></div>
+                    <div class="pin-card">
+                        <div class="pc-num">02</div>
+                        <div class="pc-title">BGMI Championship</div>
+                        <div class="pc-desc">Hawkins Lab — Competitive BGMI in classified conditions</div>
+                        <a href="#" class="pc-btn">Register →</a>
+                    </div>
+                </div>
+                <div class="map-pin" id="pin-3" style="left:75%;top:55%">
+                    <div class="pin-dot"></div>
+                    <div class="pin-card">
+                        <div class="pc-num">03</div>
+                        <div class="pc-title">Free Fire</div>
+                        <div class="pc-desc">The Upside Down — Battle royale where only the bold survive</div>
+                        <a href="#" class="pc-btn">Register →</a>
+                    </div>
+                </div>
+                <div class="map-pin" id="pin-4" style="left:40%;top:65%">
+                    <div class="pin-dot"></div>
+                    <div class="pin-card">
+                        <div class="pc-num">04</div>
+                        <div class="pc-title">Theme Quiz</div>
+                        <div class="pc-desc">Byers House — Decode the clues before the lights go dark</div>
+                        <a href="#" class="pc-btn">Register →</a>
+                    </div>
+                </div>
+                <div class="map-pin" id="pin-5" style="left:18%;top:68%">
+                    <div class="pin-dot"></div>
+                    <div class="pin-card">
+                        <div class="pc-num">05</div>
+                        <div class="pc-title">IPL Auction</div>
+                        <div class="pc-desc">Scoops Ahoy — Bid like your season depends on it</div>
+                        <a href="#" class="pc-btn">Register →</a>
+                    </div>
+                </div>
+                <div class="map-pin" id="pin-6" style="left:62%;top:78%">
+                    <div class="pin-dot"></div>
+                    <div class="pin-card">
+                        <div class="pc-num">06</div>
+                        <div class="pc-title">Project Competition</div>
+                        <div class="pc-desc">Wheeler's Basement — Present innovations to save the world</div>
+                        <a href="#" class="pc-btn">Register →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- EVENTS (Idea 6 — 3D tilt + holographic cards) -->
+    <section id="events" class="events-section">
+        <div class="events-scanlines"></div>
+        <div class="container mx-auto px-8 py-28 relative z-10">
+            <h2 class="section-title text-center" data-aos="fade-up" data-flicker>Events</h2>
+            <div class="title-rule mx-auto" data-aos="fade-up" data-aos-delay="100"></div>
+            <p class="events-subtitle mt-3" data-aos="fade-up" data-aos-delay="200">Choose your battle. Enter the arena.</p>
+            <div class="events-grid mt-16">
+
+                <div class="event-card tilt-card" data-aos="fade-up" data-aos-delay="0">
+                    <div class="holo-shine"></div>
+                    <div class="card-glow"></div>
+                    <div class="card-corner tl"></div><div class="card-corner tr"></div>
+                    <div class="card-corner bl"></div><div class="card-corner br"></div>
+                    <span class="card-tag">Robotics</span>
+                    <div class="card-icon"><svg viewBox="0 0 40 40" fill="none"><rect x="12" y="14" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="21" r="2" fill="currentColor"/><circle cx="24" cy="21" r="2" fill="currentColor"/><path d="M20 14V10M17 10h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M12 22H8M32 22h-4M16 28v3M24 28v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                    <h3 class="card-title">Robo Soccer</h3>
+                    <p class="card-desc">Teams control robots in a soccer-style arena. Precision engineering meets real-time strategy.</p>
+                    <a href="#" class="card-btn register-btn">Register <span>→</span></a>
+                </div>
+
+                <div class="event-card tilt-card" data-aos="fade-up" data-aos-delay="70">
+                    <div class="holo-shine"></div>
+                    <div class="card-glow"></div>
+                    <div class="card-corner tl"></div><div class="card-corner tr"></div>
+                    <div class="card-corner bl"></div><div class="card-corner br"></div>
+                    <span class="card-tag">Gaming</span>
+                    <div class="card-icon"><svg viewBox="0 0 40 40" fill="none"><rect x="7" y="13" width="26" height="16" rx="4" stroke="currentColor" stroke-width="1.5"/><path d="M14 21h6M17 18v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="26" cy="19" r="1.5" fill="currentColor"/><circle cx="29" cy="22" r="1.5" fill="currentColor"/></svg></div>
+                    <h3 class="card-title">BGMI Championship</h3>
+                    <p class="card-desc">Battlegrounds Mobile India — where teamwork, reflex and strategy decide survival.</p>
+                    <a href="#" class="card-btn register-btn">Register <span>→</span></a>
+                </div>
+
+                <div class="event-card tilt-card" data-aos="fade-up" data-aos-delay="140">
+                    <div class="holo-shine"></div>
+                    <div class="card-glow"></div>
+                    <div class="card-corner tl"></div><div class="card-corner tr"></div>
+                    <div class="card-corner bl"></div><div class="card-corner br"></div>
+                    <span class="card-tag">Gaming</span>
+                    <div class="card-icon"><svg viewBox="0 0 40 40" fill="none"><path d="M20 8L28 28H12L20 8Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M15 22h10" stroke="currentColor" stroke-width="1.5"/></svg></div>
+                    <h3 class="card-title">Free Fire</h3>
+                    <p class="card-desc">Battle royale tournament. Quick decisions, tactical plays, last squad standing wins.</p>
+                    <a href="#" class="card-btn register-btn">Register <span>→</span></a>
+                </div>
+
+                <div class="event-card tilt-card" data-aos="fade-up" data-aos-delay="210">
+                    <div class="holo-shine"></div>
+                    <div class="card-glow"></div>
+                    <div class="card-corner tl"></div><div class="card-corner tr"></div>
+                    <div class="card-corner bl"></div><div class="card-corner br"></div>
+                    <span class="card-tag">Knowledge</span>
+                    <div class="card-icon"><svg viewBox="0 0 40 40" fill="none"><path d="M20 8C14.477 8 10 12.477 10 18c0 3.5 1.8 6.6 4.5 8.4V30h11v-3.6C28.2 24.6 30 21.5 30 18c0-5.523-4.477-10-10-10Z" stroke="currentColor" stroke-width="1.5"/><path d="M16 30h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M20 14v4l2.5 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                    <h3 class="card-title">Theme Based Quiz</h3>
+                    <p class="card-desc">Themed technical competition. Knowledge, speed and nerve tested in every round.</p>
+                    <a href="#" class="card-btn register-btn">Register <span>→</span></a>
+                </div>
+
+                <div class="event-card tilt-card" data-aos="fade-up" data-aos-delay="280">
+                    <div class="holo-shine"></div>
+                    <div class="card-glow"></div>
+                    <div class="card-corner tl"></div><div class="card-corner tr"></div>
+                    <div class="card-corner bl"></div><div class="card-corner br"></div>
+                    <span class="card-tag">Strategy</span>
+                    <div class="card-icon"><svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="14" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M10 33c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M28 14l4-2M27 19h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                    <h3 class="card-title">IPL Auction</h3>
+                    <p class="card-desc">Simulate a full IPL auction. Budget, bid, and build the best team under pressure.</p>
+                    <a href="#" class="card-btn register-btn">Register <span>→</span></a>
+                </div>
+
+                <div class="event-card tilt-card" data-aos="fade-up" data-aos-delay="350">
+                    <div class="holo-shine"></div>
+                    <div class="card-glow"></div>
+                    <div class="card-corner tl"></div><div class="card-corner tr"></div>
+                    <div class="card-corner bl"></div><div class="card-corner br"></div>
+                    <span class="card-tag">Innovation</span>
+                    <div class="card-icon"><svg viewBox="0 0 40 40" fill="none"><path d="M10 32V20L20 8l10 12v12H10Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><rect x="16" y="24" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/></svg></div>
+                    <h3 class="card-title">Project Competition</h3>
+                    <p class="card-desc">Present your most innovative engineering solution. Build what the world hasn't seen yet.</p>
+                    <a href="#" class="card-btn register-btn">Register <span>→</span></a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- PORTAL REGISTER RIPPLE (Idea 10) -->
+    <div id="portal-ripple"></div>
+
+    <!-- FOOTER -->
+    <footer id="contact">
+        <div class="footer-gate" aria-hidden="true">
+            <div class="fg-ring r1"></div><div class="fg-ring r2"></div>
+            <div class="fg-ring r3"></div><div class="fg-core"></div>
+        </div>
+        <div class="footer-body">
+            <div class="container mx-auto px-8">
+                <div class="contact-strip" data-aos="fade-up">
+                    <div class="contact-item"><span class="ci-label">Coordinator</span><span class="ci-value">Swati Ma'am</span></div>
+                    <div class="contact-divider"></div>
+                    <div class="contact-item"><span class="ci-label">Phone</span><a href="tel:0000000000" class="ci-value ci-link">00000 00000</a></div>
+                    <div class="contact-divider"></div>
+                    <div class="contact-item"><span class="ci-label">Email</span><a href="mailto:techkrunch26@gmail.com" class="ci-value ci-link">techkrunch26@gmail.com</a></div>
+                    <div class="contact-divider"></div>
+                    <div class="contact-item"><span class="ci-label">Department</span><span class="ci-value">ENTC — GHRCEM</span></div>
+                </div>
+                <div class="copyright-bar">
+                    <div class="lights-row-mini">
+                        <div class="bulb b-r"></div><div class="bulb b-y"></div><div class="bulb b-g"></div><div class="bulb b-b"></div><div class="bulb b-p"></div>
+                    </div>
+                    <span class="copy-text">© 2026 TechKrunch · PRAGYOTSAV 2K26 · GHRCEM ENTC Department. All rights reserved.</span>
+                    <span class="copy-sub">Designed for the Upside Down</span>
+                </div>
             </div>
         </div>
     </footer>
