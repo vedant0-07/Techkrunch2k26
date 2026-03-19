@@ -11,13 +11,18 @@ const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* ═══════════════════════════════════════
    PIN DATA (Hawkins Map)
 ═══════════════════════════════════════ */
+/* ─── EDIT LOCATIONS HERE ───────────────────────────────────────────────
+   Replace the "location" value in each entry below with the actual
+   room number / venue once you have it confirmed. e.g. "Room 204, Block B"
+   ─────────────────────────────────────────────────────────────────────── */
 const PIN_DATA = {
-    1:{num:'01',title:'Robo Soccer',    desc:'Hawkins High Gym — Teams battle with robots in a soccer arena. Precision engineering meets real-time strategy.'},
-    2:{num:'02',title:'BGMI Championship', desc:'Hawkins Lab — Competitive BGMI under classified conditions. Teamwork, reflex, survival.'},
-    3:{num:'03',title:'Free Fire',      desc:'The Upside Down — Battle royale where only the bold survive. Last squad standing wins.'},
-    4:{num:'04',title:'Theme Based Quiz', desc:'Byers House — Decode the clues before the lights go dark. Knowledge, speed, nerve.'},
-    5:{num:'05',title:'IPL Auction',    desc:'Scoops Ahoy — Bid like your season depends on it. Budget smart, build the best team.'},
-    6:{num:'06',title:'Project Competition', desc:"Wheeler's Basement — Present innovations to save the world. Build what hasn't been seen yet."},
+    1:{ num:'01', title:'Robo Soccer',         location:'Location TBA',  desc:'Precision engineering meets real-time strategy. Teams battle robots in a soccer-style arena.' },
+    2:{ num:'02', title:'BGMI Championship',   location:'Location TBA',  desc:'Competitive Battlegrounds Mobile India under classified conditions. Teamwork and reflex decide survival.' },
+    3:{ num:'03', title:'Free Fire',           location:'Location TBA',  desc:'Battle royale where only the bold survive. Quick decisions, tactical plays, last squad wins.' },
+    4:{ num:'04', title:'Theme Based Quiz',    location:'Location TBA',  desc:'Knowledge, speed and nerve tested in every round. Decode the theme before time runs out.' },
+    5:{ num:'05', title:'IPL Auction',         location:'Location TBA',  desc:'Simulate a full IPL auction. Budget smart, bid strategically, build the best team.' },
+    6:{ num:'06', title:'Project Competition', location:'Location TBA',  desc:'Present your most innovative engineering solution. Build what the world has not seen yet.' },
+    7:{ num:'07', title:'Reel Making',         location:'Location TBA',  desc:'Create the most creative short reel on a given theme. Storytelling, editing and vision in under 60 seconds.' },
 };
 
 /* ═══════════════════════════════════════
@@ -473,18 +478,20 @@ function drawBeam(x,y) {
 
     document.querySelectorAll('.pin-dot').forEach(dot=>{
         // Both click and touchend
-        ['click','touchend'].forEach(ev=>{
-            dot.addEventListener(ev, e=>{
-                e.preventDefault(); e.stopPropagation();
-                const id=dot.dataset.pin;
-                const data=PIN_DATA[id];
-                if(!data) return;
-                document.getElementById('pm-num').textContent=data.num;
-                document.getElementById('pm-title').textContent=data.title;
-                document.getElementById('pm-desc').textContent=data.desc;
-                modal.classList.remove('hidden');
-            },{passive:false});
+        // Use pointerup for unified mouse+touch, prevents scroll interference
+        dot.addEventListener('pointerup', e=>{
+            e.preventDefault(); e.stopPropagation();
+            const id=dot.dataset.pin;
+            const data=PIN_DATA[id];
+            if(!data) return;
+            document.getElementById('pm-num').textContent=data.num;
+            document.getElementById('pm-title').textContent=data.title;
+            document.getElementById('pm-desc').textContent=data.desc;
+            const locEl=document.getElementById('pm-location');
+            if(locEl) locEl.textContent=data.location;
+            modal.classList.remove('hidden');
         });
+        dot.addEventListener('touchstart',e=>{ e.stopPropagation(); },{passive:true});
     });
 
     function closeModal(){modal.classList.add('hidden');}
@@ -493,20 +500,111 @@ function drawBeam(x,y) {
         if(modal && !modal.contains(e.target) && !e.target.classList.contains('pin-dot')) closeModal();
     },{passive:true});
 
-    // Desktop hover cards (inline, no modal)
+    // Desktop hover cards
+    // KEY FIXES:
+    // 1. card has pointer-events:none — moving mouse onto card never triggers mouseleave
+    // 2. card is pre-rendered hidden (visibility:hidden not opacity:0) so offsetHeight is real
+    // 3. position calculated AFTER setting innerHTML so height is correct
+    // 4. No disappear-on-hover bug because card is pointer-events:none
     if (!IS_TOUCH) {
-        document.querySelectorAll('.pin-dot').forEach(dot=>{
-            let card=null;
-            dot.addEventListener('mouseenter',()=>{
-                const id=dot.dataset.pin; const data=PIN_DATA[id]; if(!data) return;
-                card=document.createElement('div');
-                card.style.cssText='position:absolute;bottom:26px;left:50%;transform:translateX(-50%);background:rgba(4,2,8,0.96);border:1px solid rgba(200,30,0,.28);padding:14px 16px;min-width:190px;max-width:230px;pointer-events:none;z-index:10;backdrop-filter:blur(10px)';
-                card.innerHTML=`<div style="font-family:'Share Tech Mono',monospace;font-size:.58rem;color:rgba(200,30,0,.5);letter-spacing:.2em;margin-bottom:5px;text-transform:uppercase">${data.num}</div><div style="font-family:'Creepster',cursive;font-size:1.05rem;color:#fff;text-transform:uppercase;margin-bottom:5px">${data.title}</div><div style="font-size:.72rem;color:rgba(180,145,200,.6);line-height:1.6;margin-bottom:10px">${data.desc}</div><a href="#" style="font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:#ff3300;text-decoration:none">Register →</a>`;
-                dot.parentElement.style.position='relative';
-                dot.parentElement.appendChild(card);
+        const mapContainer = document.querySelector('.map-container');
+        if (mapContainer) {
+
+            // Build the card once — keep it in DOM, toggle visibility
+            const hoverCard = document.createElement('div');
+            hoverCard.id = 'map-hover-card';
+            hoverCard.style.cssText = [
+                'position:absolute',
+                'pointer-events:none',
+                'z-index:30',
+                'background:rgba(4,2,8,0.97)',
+                'border:1px solid rgba(200,30,0,.4)',
+                'padding:14px 16px',
+                'width:230px',
+                'visibility:hidden',          // hidden not opacity:0 so offsetHeight works
+                'opacity:0',
+                'transition:opacity 0.15s ease',
+                'backdrop-filter:blur(12px)',
+                '-webkit-backdrop-filter:blur(12px)',
+                'box-shadow:0 0 28px rgba(200,30,0,.15)',
+                'will-change:transform',
+            ].join(';');
+            mapContainer.style.position = 'relative'; // ensure positioning context
+            mapContainer.style.overflow = 'visible';  // allow card to overflow if needed
+            mapContainer.appendChild(hoverCard);
+
+            let hideTimer = null;
+            let currentPin = null;
+
+            function showCard(dot) {
+                clearTimeout(hideTimer);
+                const id   = dot.dataset.pin;
+                if (id === currentPin) {
+                    // Already showing this pin — just ensure visible
+                    hoverCard.style.visibility = 'visible';
+                    hoverCard.style.opacity    = '1';
+                    return;
+                }
+                currentPin = id;
+                const data = PIN_DATA[id];
+                if (!data) return;
+
+                // Set content first so offsetHeight is real
+                hoverCard.style.visibility = 'hidden';
+                hoverCard.style.opacity    = '0';
+                hoverCard.innerHTML = [
+                    `<div style="font-family:sans-serif;font-size:.55rem;color:rgba(200,30,0,.55);letter-spacing:.22em;margin-bottom:5px;text-transform:uppercase">${data.num}</div>`,
+                    `<div style="font-size:1.1rem;color:#fff;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;font-weight:600">${data.title}</div>`,
+                    `<div style="font-size:.57rem;color:rgba(200,30,0,.65);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;padding:3px 8px;border:1px solid rgba(200,30,0,.25);display:inline-block">${data.location}</div>`,
+                    `<div style="font-size:.7rem;color:rgba(180,145,200,.62);line-height:1.65;margin-top:2px">${data.desc}</div>`
+                ].join('');
+
+                // Now measure and position
+                const CARD_W  = 230;
+                const CARD_H  = hoverCard.offsetHeight || 150; // real height after innerHTML set
+                const mapRect = mapContainer.getBoundingClientRect();
+                const dotRect = dot.getBoundingClientRect();
+                const dotCX   = dotRect.left + dotRect.width  / 2 - mapRect.left;
+                const dotCY   = dotRect.top  + dotRect.height / 2 - mapRect.top;
+
+                // Try above first, fall back to below if not enough room
+                let top  = dotCY - CARD_H - 16;
+                let left = dotCX - CARD_W / 2;
+
+                if (top < 4)                        top  = dotCY + 20;
+                if (top + CARD_H > mapRect.height)  top  = dotCY - CARD_H - 4;
+                left = Math.max(4, Math.min(left, mapRect.width - CARD_W - 4));
+
+                hoverCard.style.left       = left + 'px';
+                hoverCard.style.top        = top  + 'px';
+                hoverCard.style.visibility = 'visible';
+                hoverCard.style.opacity    = '1';
+            }
+
+            function hideCard(force) {
+                currentPin = null;
+                if (force) {
+                    hoverCard.style.opacity    = '0';
+                    hoverCard.style.visibility = 'hidden';
+                } else {
+                    hideTimer = setTimeout(() => {
+                        hoverCard.style.opacity    = '0';
+                        hoverCard.style.visibility = 'hidden';
+                    }, 180);
+                }
+            }
+
+            document.querySelectorAll('.pin-dot').forEach(dot => {
+                dot.addEventListener('mouseenter', () => showCard(dot));
+                dot.addEventListener('mouseleave', () => hideCard(false));
+                // Also handle focus for accessibility
+                dot.addEventListener('focus',      () => showCard(dot));
+                dot.addEventListener('blur',       () => hideCard(true));
             });
-            dot.addEventListener('mouseleave',()=>{ if(card){card.remove();card=null;} });
-        });
+
+            // Hide if mouse leaves the map container entirely
+            mapContainer.addEventListener('mouseleave', () => hideCard(true));
+        }
     }
 })();
 
@@ -619,7 +717,7 @@ menuBtn.addEventListener('click',()=>{ mobileNav.classList.contains('open')?clos
 ═══════════════════════════════════════ */
 document.querySelectorAll('.register-btn').forEach(btn=>{
     btn.addEventListener('click',e=>{
-        e.preventDefault();
+        // e.preventDefault() REMOVED — allows Google Form link to open
         const ripEl=document.getElementById('portal-ripple');
         // Get coords — touch or mouse
         let x,y;
